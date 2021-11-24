@@ -1,0 +1,16 @@
+.textfield {
+  margin: 15px;
+}
+form {
+  width: 360px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+button {
+  height: 45px;
+}
+.fixed {
+  position: fixed;
+  bottom: 10px;
+}
