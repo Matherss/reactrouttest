@@ -2,3 +2,19 @@
   text-align: left;
   font-size: 18px;
 }
+.link {
+  color: black;
+  text-decoration: none;
+  transition: 0.3s;
+  &:hover {
+    color: #7fffd4dc;
+  }
+  &:active {
+    color: aquamarine;
+  }
+}
+.absoluteHomeLink {
+  position: absolute;
+  left: 0;
+  top: 0;
+}

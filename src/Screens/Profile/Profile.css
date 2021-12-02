@@ -1,7 +1,11 @@
 .App {
   text-align: center;
 }
-
+.absoluteHomeLink {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
 .App-logo {
   height: 40vmin;
   pointer-events: none;

@@ -5,6 +5,9 @@ import { createMuiTheme } from "@mui/material";
 import { ThemeProvider } from "@emotion/react";
 
 import { Router } from "./Router/Router";
+import { BrowserRouter } from "react-router-dom";
+import { Provider } from "react-redux";
+import { store } from "./Store";
 
 const theme = createMuiTheme({
   palette: {
@@ -17,10 +20,13 @@ const theme = createMuiTheme({
 const App = () => {
   return (
     <>
-      {" "}
-      <ThemeProvider theme={theme}>
-        <Router />
-      </ThemeProvider>
+      <Provider store={store}>
+        <BrowserRouter>
+          <ThemeProvider theme={theme}>
+            <Router />
+          </ThemeProvider>
+        </BrowserRouter>
+      </Provider>
     </>
   );
 };

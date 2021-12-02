@@ -1,79 +1,89 @@
-import React, { useCallback } from "react";
+import React from "react";
 import "./Chats.css";
 import { MessageList } from "../../Components/MessageList";
 import { AddMessageForm } from "../../Components/AddMessageForm";
-import { useState } from "react";
-import { useEffect } from "react";
-import faker from "faker";
+
 import { ChatList } from "../../Components/ChatList";
-import { Redirect, useParams } from "react-router";
+import { Redirect } from "react-router";
 import { ROUTES } from "../../Router/constants";
 
-const initialChats = {
-  id1: {
-    name: "Chat1",
-    messages: [
-      { text: "FirstMessage", author: "BOT" },
-      { text: "FirstMessage", author: "BOT" },
-      { text: "FirstMessage", author: "BOT" }
-    ]
-  },
-  id2: {
-    name: "Chat2",
-    messages: [{ text: "FirstMessageHereToo!", author: "AUTHORS.ME" }]
-  }
-};
+import { useMemo } from "react";
+import faker from "faker";
+import { Link, useParams } from "react-router-dom";
+import { Button } from "@mui/material";
+import { useSelector } from "react-redux";
+import { profileNameSelector } from "../../Store/Profile/selectors";
+import { chatListSelector } from "../../Store/Chats/selectors";
+import { chatMessagesSelector, messageListSelector } from "../../Store/Messages/selectors";
 
-export const Chats = (props) => {
+export const Chats = ({ mainAuthor, bot, setChats }) => {
   const { chatId } = useParams();
-  const [chats, setChats] = useState(initialChats);
-  console.log("chats:" + chats);
+  const chats = useSelector(chatListSelector);
+  const messages = useSelector(messageListSelector);
+  const messageAuthor = "me";
 
-  const mainAuthor = "ilya";
-  const bot = "BOT";
+  const addChat = (chatName, addChatId) => {
+    chats = { ...chats, [addChatId]: { name: chatName, messages: [] } };
+    setChats({ ...chats });
+  };
+  const deleteChat = (delId) => {
+    delete chats[delId];
+    setChats({ ...chats });
+  };
+  const authorName = useSelector(profileNameSelector);
+  const changeMessageList = (messageAuthor, messageText) => {
+    setChats({
+      ...chats,
+      [chatId]: {
+        ...chats[chatId],
+        messages: [
+          ...chats[chatId].messages,
+          {
+            author: messageAuthor,
+            id: faker.datatype.uuid(),
+            time: new Date().toLocaleTimeString(),
+            text: messageText
+          }
+        ]
+      }
+    });
+  };
 
-  // const [messageList, setMessageList] = useState(initialChats.id1.messages);
-
-  const changeMessageList = useCallback(
-    (messageAuthor, messageText) => {
-      setChats([
-        ...chats.id1.messages,
-        {
-          author: messageAuthor,
-          id: faker.datatype.uuid(),
-          time: new Date().toLocaleTimeString(),
-          text: messageText
-        }
-      ]);
-    },
-    [chats]
-  );
-  // useEffect(() => {
-  //   let timerID;
-  //   if (messageList.length && messageList[messageList.length - 1].author === mainAuthor) {
-  //     timerID = setTimeout(() => {
-  //       changeMessageList(bot, "bot text");
-  //     }, 1500);
-  //     return () => {
-  //       clearTimeout(timerID);
-  //     };
-  //   }
-  // }, [messageList, changeMessageList]);
+  useMemo(() => {
+    let timerID;
+    if (
+      chats[chatId]?.messages.length &&
+      chats[chatId]?.messages[chats[chatId]?.messages.length - 1].author === authorName
+    ) {
+      timerID = setTimeout(() => {
+        changeMessageList(bot, "bot text");
+      }, 1500);
+    }
+    return () => {
+      clearTimeout(timerID);
+    };
+  }, [chats[chatId]?.messages, changeMessageList]);
   if (!chatId || !chats[chatId]) {
     return <Redirect to={ROUTES.NO_CHATS} />;
   }
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <div className="flex_chat_elements">
-          <ChatList chats={chats} chatId={chatId} />
-          <div>
-            <MessageList messages={chats[chatId].messages} />
-            <AddMessageForm mainAuthor={mainAuthor} handleAddMessage={setChats} />
+    <>
+      <div className="App">
+        <header className="App-header">
+          <div className="absoluteHomeLink">
+            <Button variant="contained" size="large">
+              <Link to={ROUTES.HOME}>Home</Link>
+            </Button>
           </div>
-        </div>
-      </header>
-    </div>
+          <div className="flex_chat_elements">
+            <ChatList addChat={addChat} deleteChat={deleteChat} chats={chats} chatId={chatId} />
+            <div>
+              <MessageList messages={messages} />
+              <AddMessageForm mainAuthor={mainAuthor} handleAddMessage={changeMessageList} />
+            </div>
+          </div>
+        </header>
+      </div>
+    </>
   );
 };
